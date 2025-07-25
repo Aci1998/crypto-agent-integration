@@ -14,7 +14,8 @@ class CryptoAgent:
         self.base_url = api_base_url
         self.supported_currencies = [
             'BTC', 'ETH', 'ADA', 'DOT', 'LINK', 'LTC', 'XRP', 
-            'BNB', 'SOL', 'MATIC', 'AVAX', 'DOGE', 'SHIB', 'UNI', 'ATOM'
+            'BNB', 'SOL', 'MATIC', 'AVAX', 'DOGE', 'SHIB', 'UNI', 'ATOM',
+            'OP', 'ARB', 'NEAR', 'FTM', 'ALGO', 'VET', 'ICP', 'FLOW'
         ]
         
     def extract_currency_from_text(self, text: str) -> Optional[str]:
