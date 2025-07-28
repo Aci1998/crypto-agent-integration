@@ -8,6 +8,7 @@ import json
 import re
 from datetime import datetime
 from typing import Dict, Any, Optional, List
+from ai_intent_recognition import recognize_crypto_intent
 
 class CryptoAgent:
     def __init__(self, api_base_url: str = "http://localhost:5000"):
@@ -140,28 +141,55 @@ class CryptoAgent:
         return response
     
     def process_query(self, query: str) -> str:
-        """处理自然语言查询"""
+        """处理自然语言查询 - 使用AI意图识别"""
         query = query.strip()
         
-        # 提取货币代码
-        currency = self.extract_currency_from_text(query)
+        # 使用AI意图识别
+        intent_result = recognize_crypto_intent(query)
         
-        if not currency:
-            return """
-❓ 我没有识别出要查询的加密货币。
-
-请尝试以下格式：
+        # 根据意图类型处理
+        if intent_result['intent_type'] == 'market_overview':
+            return self.get_market_overview()
+        
+        elif intent_result['intent_type'] == 'batch_query':
+            if intent_result['symbols']:
+                return self.get_multiple_prices(intent_result['symbols'])
+            else:
+                return self._format_no_recognition_response(intent_result)
+        
+        elif intent_result['intent_type'] == 'single_query':
+            if intent_result['symbols'] and intent_result['confidence'] > 0.5:
+                # 获取价格信息
+                currency = intent_result['symbols'][0]
+                result = self.get_crypto_price(currency)
+                return self.format_price_response(result)
+            else:
+                return self._format_no_recognition_response(intent_result)
+        
+        else:
+            return self._format_no_recognition_response(intent_result)
+    
+    def _format_no_recognition_response(self, intent_result: Dict[str, Any]) -> str:
+        """格式化无法识别的响应"""
+        response = "❓ 我没有识别出要查询的加密货币。\n\n"
+        
+        if intent_result['suggestions']:
+            response += "💡 建议：\n"
+            for suggestion in intent_result['suggestions']:
+                response += f"• {suggestion}\n"
+        else:
+            response += """💡 请尝试以下格式：
 • "BTC价格" 或 "比特币价格"
 • "查询ETH" 或 "以太坊多少钱"
 • "BTC/USDT交易对"
 • "告诉我SOL的价格"
+• "OKB价格" 或 "PEPE多少钱"
+• "市场概览"
+• "BTC,ETH,ADA" (批量查询)
 
-支持的货币: BTC, ETH, ADA, SOL, BNB, DOGE 等
-            """.strip()
+🔍 智能识别支持更多货币代码，包括新兴币种！"""
         
-        # 获取价格信息
-        result = self.get_crypto_price(currency)
-        return self.format_price_response(result)
+        return response.strip()
     
     def get_multiple_prices(self, symbols: List[str]) -> str:
         """批量查询多个货币价格"""

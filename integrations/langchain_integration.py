@@ -5,6 +5,7 @@ LangChain集成示例
 from typing import Optional
 import sys
 import os
+from langchain.tools import Tool
 
 # 添加父目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -13,8 +14,7 @@ from crypto_agent import CryptoAgent
 
 def create_langchain_tool():
     """创建LangChain工具"""
-    try:
-        from langchain.tools import Tool
+    try: 
         
         crypto_agent = CryptoAgent()
         
