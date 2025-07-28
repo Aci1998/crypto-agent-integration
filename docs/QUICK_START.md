@@ -133,5 +133,3 @@ A: 检查Python路径和依赖是否正确安装
 - [API参考](docs/API_REFERENCE.md) - 完整API文档
 
 ---
-
-🎉 现在你可以开始使用加密货币Agent集成工具了！
